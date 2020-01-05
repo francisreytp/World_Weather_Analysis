@@ -3,6 +3,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 
 import json 
 import requests as req
@@ -14,7 +15,8 @@ from datetime import datetime
 # Import the API key.
 from config import weather_api_key
 
-
+# Import linear regression from the SciPy stats module.
+from scipy.stats import linregress
 
 #%%
 # Create a set of random latitude and longitude combinations.
@@ -29,6 +31,9 @@ lat_lngs
 coordinates = list(lat_lngs)
 coordinates
 
+#%%
+# Starting URL for Weather Map API Call.
+url = "http://api.openweathermap.org/data/2.5/weather?units=Imperial&APPID=" + weather_api_key
 
 #%%
 # Create a list for holding the cities.
@@ -128,4 +133,384 @@ output_data_file = "weather_data/cities.csv"
 # Export the City_Data into a CSV.
 city_data_df.to_csv(output_data_file, index_label="City_ID")
 
+
+#%%
+# Files to load
+cities_data_to_load = os.path.join("weather_data", "cities.csv")
+
+
+#%%
+# Read the file and store it in a Pandas DataFrame.
+city_data_df = pd.read_csv(cities_data_to_load)
+city_data_df
+
+#%%
+# Extract relevant fields from the DataFrame for plotting.
+lats = city_data_df["Lat"]
+max_temps = city_data_df["Max Temp"]
+humidity = city_data_df["Humidity"]
+cloudiness = city_data_df["Cloudiness"]
+wind_speed = city_data_df["Wind Speed"]
+
+#%%
+# print date
+# Import the time module.
+import time
+# Get today's date in seconds.
+today = time.time()
+#today
+
+# today = time.strftime('%Y-%m-%d %H:%M:%S')
+today = time.strftime('%x')
+today
+
 # %%
+# Build the scatter plot for latitude vs. max temperature.
+plt.scatter(lats,
+            max_temps,
+            edgecolor="black", linewidths=1, marker="o",
+            alpha=0.8, label="Cities")
+
+# Incorporate the other graph properties.
+plt.title(f"City Latitude vs. Max Temperature "+ time.strftime("%x"))
+plt.ylabel("Max Temperature (F)")
+plt.xlabel("Latitude")
+plt.grid(True)
+
+# Save the figure.
+plt.savefig("weather_data/Fig1.png")
+
+# Show plot.
+plt.show()
+
+# %%
+# Build the scatter plots for latitude vs. humidity.
+plt.scatter(lats,
+            humidity,
+            edgecolor="black", linewidths=1, marker="o",
+            alpha=0.8, label="Cities")
+
+# Incorporate the other graph properties.
+plt.title(f"City Latitude vs. Humidity "+ time.strftime("%x"))
+plt.ylabel("Humidity (%)")
+plt.xlabel("Latitude")
+plt.grid(True)
+# Save the figure.
+plt.savefig("weather_data/Fig2.png")
+# Show plot.
+plt.show()
+
+# %%
+# Build the scatter plots for latitude vs. cloudiness.
+plt.scatter(lats,
+            cloudiness,
+            edgecolor="black", linewidths=1, marker="o",
+            alpha=0.8, label="Cities")
+
+# Incorporate the other graph properties.
+plt.title(f"City Latitude vs. Cloudiness (%) "+ time.strftime("%x"))
+plt.ylabel("Cloudiness (%)")
+plt.xlabel("Latitude")
+plt.grid(True)
+# Save the figure.
+plt.savefig("weather_data/Fig3.png")
+# Show plot.
+plt.show()
+
+# %%
+# Build the scatter plots for latitude vs. wind speed.
+plt.scatter(lats,
+            wind_speed,
+            edgecolor="black", linewidths=1, marker="o",
+            alpha=0.8, label="Cities")
+
+# Incorporate the other graph properties.
+plt.title(f"City Latitude vs. Wind Speed "+ time.strftime("%x"))
+plt.ylabel("Wind Speed (mph)")
+plt.xlabel("Latitude")
+plt.grid(True)
+# Save the figure.
+plt.savefig("weather_data/Fig4.png")
+# Show plot.
+plt.show()
+
+
+#%%
+# Create Northern and Southern Hemisphere DataFrames.
+northern_hemi_df = city_data_df.loc[(city_data_df["Lat"] >= 0)]
+southern_hemi_df = city_data_df.loc[(city_data_df["Lat"] < 0)]
+
+#%%
+# %%
+# Temp. Linear regression on the Northern Hemisphere
+x_values = northern_hemi_df["Lat"]
+y_values = northern_hemi_df["Max Temp"]
+
+# Run regression on hemisphere weather data.
+(slope, intercept, r_value, p_value, std_err) = linregress(x_values, y_values)
+
+# Calculate the regression line "y values" from the slope and intercept.
+regress_values = [(lat * slope + intercept) for lat in x_values]
+
+# Get the equation of the line.
+line_eq = "y = " + str(round(slope,2)) + "x + " + str(round(intercept,2))
+
+# Plot linear regression
+plt.scatter(x_values, y_values,
+            max_temps,
+            edgecolor="black", linewidths=1, marker="o",
+            alpha=0.8, label="Cities")
+
+# Incorporate the other graph properties.
+plt.title(f"Linear Regression on the Northern Hemisphere \nfor Maximum Temperature")
+plt.ylabel("Max Temperature (F)")
+plt.xlabel("Latitude")
+plt.grid(False)
+plt.annotate(line_eq, (0,-40), fontsize=15, color="red")
+# plt.plot(lats,regress_values,"r")
+plt.plot(x_values, regress_values,"r")
+# Save the figure.
+plt.savefig("weather_data/Fig5.png")
+
+# Show plot.
+plt.show()
+# %%
+# Temp. Linear regression on the Southern Hemisphere
+x_values = southern_hemi_df["Lat"]
+y_values = southern_hemi_df["Max Temp"]
+
+# Run regression on hemisphere weather data.
+(slope, intercept, r_value, p_value, std_err) = linregress(x_values, y_values)
+
+# Calculate the regression line "y values" from the slope and intercept.
+regress_values = [(lat * slope + intercept) for lat in x_values]
+
+# Get the equation of the line.
+line_eq = "y = " + str(round(slope,2)) + "x + " + str(round(intercept,2))
+
+# Plot linear regression
+plt.scatter(x_values, y_values,
+            max_temps,
+            edgecolor="black", linewidths=1, marker="o",
+            alpha=0.8, label="Cities")
+
+# Incorporate the other graph properties.
+plt.title(f"Linear Regression on the Southern Hemisphere \nfor Maximum Temperature")
+plt.ylabel("Max Temperature (F)")
+plt.xlabel("Latitude")
+plt.grid(False)
+plt.annotate(line_eq, (-25,55), fontsize=15, color="red")
+# plt.plot(lats,regress_values,"r")
+plt.plot(x_values, regress_values,"r")
+# Save the figure.
+plt.savefig("weather_data/Fig6.png")
+
+# Show plot.
+plt.show()
+
+
+# %%
+# Linear regression of Humidity on the Northern Hemisphere
+x_values = northern_hemi_df["Lat"]
+y_values = northern_hemi_df["Humidity"]
+
+# Run regression on hemisphere weather data.
+(slope, intercept, r_value, p_value, std_err) = linregress(x_values, y_values)
+
+# Calculate the regression line "y values" from the slope and intercept.
+regress_values = [(lat * slope + intercept) for lat in x_values]
+
+# Get the equation of the line.
+line_eq = "y = " + str(round(slope,2)) + "x + " + str(round(intercept,2))
+
+# Plot linear regression
+plt.scatter(x_values, y_values,
+            max_temps,
+            edgecolor="black", linewidths=1, marker="o",
+            alpha=0.8, label="Cities")
+
+# Incorporate the other graph properties.
+plt.title(f"Linear Regression on the Northern Hemisphere \nfor % Humidity")
+plt.ylabel("% Humidity")
+plt.xlabel("Latitude")
+plt.grid(False)
+plt.annotate(line_eq, (45,20), fontsize=15, color="red")
+# plt.plot(lats,regress_values,"r")
+plt.plot(x_values, regress_values,"r")
+# Save the figure.
+plt.savefig("weather_data/Fig7.png")
+
+# Show plot.
+plt.show()
+# %%
+# Linear regression of Humidity on the Southern Hemisphere
+x_values = southern_hemi_df["Lat"]
+y_values = southern_hemi_df["Humidity"]
+
+# Run regression on hemisphere weather data.
+(slope, intercept, r_value, p_value, std_err) = linregress(x_values, y_values)
+
+# Calculate the regression line "y values" from the slope and intercept.
+regress_values = [(lat * slope + intercept) for lat in x_values]
+
+# Get the equation of the line.
+line_eq = "y = " + str(round(slope,2)) + "x + " + str(round(intercept,2))
+
+# Plot linear regression
+plt.scatter(x_values, y_values,
+            max_temps,
+            edgecolor="black", linewidths=1, marker="o",
+            alpha=0.8, label="Cities")
+
+# Incorporate the other graph properties.
+plt.title(f"Linear Regression on the Southern Hemisphere \nfor % Humidity")
+plt.ylabel("% Humidity")
+plt.xlabel("Latitude")
+plt.grid(False)
+plt.annotate(line_eq, (-25,7), fontsize=15, color="red")
+# plt.plot(lats,regress_values,"r")
+plt.plot(x_values, regress_values,"r")
+# Save the figure.
+plt.savefig("weather_data/Fig8.png")
+
+# Show plot.
+plt.show()
+
+
+# %%
+# Linear regression of Cloudiness on the Northern Hemisphere
+x_values = northern_hemi_df["Lat"]
+y_values = northern_hemi_df["Cloudiness"]
+
+# Run regression on hemisphere weather data.
+(slope, intercept, r_value, p_value, std_err) = linregress(x_values, y_values)
+
+# Calculate the regression line "y values" from the slope and intercept.
+regress_values = [(lat * slope + intercept) for lat in x_values]
+
+# Get the equation of the line.
+line_eq = "y = " + str(round(slope,2)) + "x + " + str(round(intercept,2))
+
+# Plot linear regression
+plt.scatter(x_values, y_values,
+            max_temps,
+            edgecolor="black", linewidths=1, marker="o",
+            alpha=0.8, label="Cities")
+
+# Incorporate the other graph properties.
+plt.title(f"Linear Regression on the Northern Hemisphere \nfor % Cloudiness")
+plt.ylabel("% Cloudiness")
+plt.xlabel("Latitude")
+plt.grid(False)
+plt.annotate(line_eq, (-3,63), fontsize=15, color="red")
+# plt.plot(lats,regress_values,"r")
+plt.plot(x_values, regress_values,"r")
+# Save the figure.
+plt.savefig("weather_data/Fig9.png")
+
+# Show plot.
+plt.show()
+# %%
+# Linear regression of Cloudiness on the Southern Hemisphere
+x_values = southern_hemi_df["Lat"]
+y_values = southern_hemi_df["Cloudiness"]
+
+# Run regression on hemisphere weather data.
+(slope, intercept, r_value, p_value, std_err) = linregress(x_values, y_values)
+
+# Calculate the regression line "y values" from the slope and intercept.
+regress_values = [(lat * slope + intercept) for lat in x_values]
+
+# Get the equation of the line.
+line_eq = "y = " + str(round(slope,2)) + "x + " + str(round(intercept,2))
+
+# Plot linear regression
+plt.scatter(x_values, y_values,
+            max_temps,
+            edgecolor="black", linewidths=1, marker="o",
+            alpha=0.8, label="Cities")
+
+# Incorporate the other graph properties.
+plt.title(f"Linear Regression on the Southern Hemisphere \nfor % Cloudiness")
+plt.ylabel("% Cloudiness")
+plt.xlabel("Latitude")
+plt.grid(False)
+plt.annotate(line_eq, (-38,50), fontsize=15, color="red")
+# plt.plot(lats,regress_values,"r")
+plt.plot(x_values, regress_values,"r")
+# Save the figure.
+plt.savefig("weather_data/Fig10.png")
+
+# Show plot.
+plt.show()
+
+
+# %%
+# Linear regression of Wind Speed on the Northern Hemisphere
+x_values = northern_hemi_df["Lat"]
+y_values = northern_hemi_df["Wind Speed"]
+
+# Run regression on hemisphere weather data.
+(slope, intercept, r_value, p_value, std_err) = linregress(x_values, y_values)
+
+# Calculate the regression line "y values" from the slope and intercept.
+regress_values = [(lat * slope + intercept) for lat in x_values]
+
+# Get the equation of the line.
+line_eq = "y = " + str(round(slope,2)) + "x + " + str(round(intercept,2))
+
+# Plot linear regression
+plt.scatter(x_values, y_values,
+            max_temps,
+            edgecolor="black", linewidths=1, marker="o",
+            alpha=0.8, label="Cities")
+
+# Incorporate the other graph properties.
+plt.title(f"Linear Regression on the Northern Hemisphere \nfor Wind Speed")
+plt.ylabel("Wind Speed")
+plt.xlabel("Latitude")
+plt.grid(False)
+plt.annotate(line_eq, (0,32), fontsize=15, color="red")
+# plt.plot(lats,regress_values,"r")
+plt.plot(x_values, regress_values,"r")
+# Save the figure.
+plt.savefig("weather_data/Fig11.png")
+
+# Show plot.
+plt.show()
+# %%
+# Linear regression of Wind Speed on the Southern Hemisphere
+x_values = southern_hemi_df["Lat"]
+y_values = southern_hemi_df["Wind Speed"]
+
+# Run regression on hemisphere weather data.
+(slope, intercept, r_value, p_value, std_err) = linregress(x_values, y_values)
+
+# Calculate the regression line "y values" from the slope and intercept.
+regress_values = [(lat * slope + intercept) for lat in x_values]
+
+# Get the equation of the line.
+line_eq = "y = " + str(round(slope,2)) + "x + " + str(round(intercept,2))
+
+# Plot linear regression
+plt.scatter(x_values, y_values,
+            max_temps,
+            edgecolor="black", linewidths=1, marker="o",
+            alpha=0.8, label="Cities")
+
+# Incorporate the other graph properties.
+plt.title(f"Linear Regression on the Southern Hemisphere \nfor Wind Speed")
+plt.ylabel("Wind Speed")
+plt.xlabel("Latitude")
+plt.grid(False)
+plt.annotate(line_eq, (-25,19), fontsize=15, color="red")
+# plt.plot(lats,regress_values,"r")
+plt.plot(x_values, regress_values,"r")
+# Save the figure.
+plt.savefig("weather_data/Fig12.png")
+
+# Show plot.
+plt.show()
+
+
+
