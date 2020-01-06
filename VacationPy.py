@@ -8,9 +8,6 @@ import os
 from config import google_key
 
 
-
-
-
 #%%
 # Files to load
 cities_data_to_load = os.path.join("weather_data", "cities.csv")
@@ -22,14 +19,6 @@ city_data_df.head()
 #%%
 # Configure gmaps to use your Google API key.
 gmaps.configure(api_key=google_key)
-
-
-#%%
-# Get the maximum temperature.
-# max_temp = city_data_df["Max Temp"]
-# temps = []
-# for temp in max_temp:
-#     temps.append(max(temp, 0))
 
 # %%
 # Heatmap of temperature
