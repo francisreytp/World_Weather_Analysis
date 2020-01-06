@@ -51,8 +51,8 @@ len(cities)
 
 #%%
 # Create an empty list to hold the weather data.
-# city_data = []
-city_test = []
+city_data = []
+
 
 # Print the beginning of the logging.
 print("Beginning Data Retrieval     ")
@@ -80,61 +80,43 @@ for i, city in enumerate(cities):
         # Parse the JSON and retrieve data.
         city_weather = requests.get(city_url).json()
         # Parse out the needed data.
-        # city_lat = city_weather["coord"]["lat"]
-        # city_lng = city_weather["coord"]["lon"]
-        # city_max_temp = city_weather["main"]["temp_max"]
-        # city_humidity = city_weather["main"]["humidity"]
-        # city_clouds = city_weather["clouds"]["all"]
-        # city_wind = city_weather["wind"]["speed"]
-        # city_country = city_weather["sys"]["country"]
-        
+        city_lat = city_weather["coord"]["lat"]
+        city_lng = city_weather["coord"]["lon"]
+        city_max_temp = city_weather["main"]["temp_max"]
+        city_humidity = city_weather["main"]["humidity"]
+        city_clouds = city_weather["clouds"]["all"]
+        city_wind = city_weather["wind"]["speed"]
+        city_country = city_weather["sys"]["country"]
         current_description = city_weather["weather"][0]["description"]
+        # parse rain in inches (last 3 hours)/ set to 0 if null
         try:
-            current_rain = city_weather["rain"]["rain.3h"]
+            current_rain = city_weather["rain"]["3h"]        
         except:
             current_rain = 0
             pass
-        
+        # parse snow in inches (last 3 hours)/ set to 0 if null
         try:
-            current_snow = city_weather["snow"]["snow.3h"]
+            current_snow = city_weather["snow"]["3h"]
         except:
             current_snow = 0
             pass
-        # current_rain = 0
-        # current_snow = 0
-        # try:
-        #     snow = city_weather["weather"][1]["main"]
-        # except:
-        #     snow = 0
         # Convert the date to ISO standard.
         city_date = datetime.utcfromtimestamp(city_weather["dt"]).strftime('%Y-%m-%d %H:%M:%S')
         # Append the city information into city_data list.
-        # city_data.append({"City": city.title(),
-        #                   "Lat": city_lat,
-        #                   "Lng": city_lng,
-        #                   "Max Temp": city_max_temp,
-        #                   "Humidity": city_humidity,
-        #                   "Cloudiness": city_clouds,
-        #                   "Wind Speed": city_wind,
-        #                   "Country": city_country,
-        #                   "Date": city_date})
-                
-        if current_rain > 0:
-            city_test.append({"City": city.title(),
-                        #   "Lat": city_lat,
-                        #   "Lng": city_lng,
-                        #   "Max Temp": city_max_temp,
-                        #   "Humidity": city_humidity,
-                        #   "Cloudiness": city_clouds,
-                        #   "Wind Speed": city_wind,
-                        #   "Country": city_country,
-                        "Date": city_date,
-                        "Current Description": current_description,
-                        "Rain inches (last 3 hours)": current_rain,
-                        "Snow inches (last 3 hours)": current_snow})
-
-                                 
-    # If an error is experienced, skip the city.
+        city_data.append({"City": city.title(),
+                          "Lat": city_lat,
+                          "Lng": city_lng,
+                          "Max Temp": city_max_temp,
+                          "Humidity": city_humidity,
+                          "Cloudiness": city_clouds,
+                          "Wind Speed": city_wind,
+                          "Country": city_country,
+                          "Date": city_date,
+                          "Current Description": current_description,
+                          "Rain inches (last 3 hours)": current_rain,
+                          "Snow inches (last 3 hours)": current_snow})
+                             
+# If an error is experienced, skip the city.
     except:
         print("City not found. Skipping...")
         pass
@@ -145,12 +127,6 @@ print("-----------------------------")
 print("Data Retrieval Complete      ")
 print("-----------------------------")
 
-#%%
-len(city_test)
-
-#%%
-city_test_df = pd.DataFrame(city_test)
-city_test_df.tail(200)
 
 # %%
 len(city_data)
@@ -162,7 +138,7 @@ city_data_df.head(10)
 
 # %%
 # Reorder the columns in the order you want them to appear.
-new_column_order = ["City", "Country", "Date","Lat", "Lng", "Max Temp", "Humidity", "Cloudiness", "Wind Speed"] 
+new_column_order = ["City", "Country", "Date","Lat", "Lng", "Max Temp", "Humidity", "Cloudiness", "Wind Speed", "Current Description", "Rain inches (last 3 hours)", "Snow inches (last 3 hours)"] 
 
 # Assign summary df the new column order.
 city_data_df = city_data_df[new_column_order]
@@ -171,27 +147,10 @@ city_data_df
 
 # %%
 # Create the output file (CSV).
-output_data_file = "weather_data/cities.csv"
+output_data_file = "weather_data/WeatherPy_vacation.csv"
 # Export the City_Data into a CSV.
 city_data_df.to_csv(output_data_file, index_label="City_ID")
 
 
-#%%
-# Files to load
-cities_data_to_load = os.path.join("weather_data", "cities.csv")
-
-
-#%%
-# Read the file and store it in a Pandas DataFrame.
-city_data_df = pd.read_csv(cities_data_to_load)
-city_data_df
-
-#%%
-# Extract relevant fields from the DataFrame for plotting.
-lats = city_data_df["Lat"]
-max_temps = city_data_df["Max Temp"]
-humidity = city_data_df["Humidity"]
-cloudiness = city_data_df["Cloudiness"]
-wind_speed = city_data_df["Wind Speed"]
 
 
