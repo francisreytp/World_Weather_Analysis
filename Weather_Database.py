@@ -147,10 +147,14 @@ city_data_df
 
 # %%
 # Create the output file (CSV).
-output_data_file = "weather_data/WeatherPy_vacation.csv"
+output_data_file = "weather_data/WeatherPy_challenge.csv"
 # Export the City_Data into a CSV.
 city_data_df.to_csv(output_data_file, index_label="City_ID")
 
+#%%
+#instances of rain
+city_data_df[city_data_df["Rain inches (last 3 hours)"]>0].count()
 
-
-
+# %%
+#instances of snow
+city_data_df[city_data_df["Snow inches (last 3 hours)"]>0].count()
