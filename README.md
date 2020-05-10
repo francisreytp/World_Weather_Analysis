@@ -17,5 +17,19 @@
 - WeatherPy_travel_map_markers.png
 - Vacation_travel_map.png
 - Vacation_travel_map_markers.png
-  
+
+WeatherPy_vacation_map
+![](https://github.com/francisreytp/World_Weather_Analysis/blob/master/images/WeatherPy_travel_map.png)
+
+WeatherPy_travel_map
+![](https://github.com/francisreytp/World_Weather_Analysis/blob/master/images/WeathePy_vacation_map.png)
+
+WeatherPy_travel_map_markers
+![](https://github.com/francisreytp/World_Weather_Analysis/blob/master/images/WeatherPy_travel_map_markers.png)
+
+Vacation_travel_map (INDIA)
+![](https://github.com/francisreytp/World_Weather_Analysis/blob/master/images/Vacation_travel_map.png)
+
+Vacation_travel_map_markers (INDIA)
+![](https://github.com/francisreytp/World_Weather_Analysis/blob/master/images/Vacaton_travel_map_markers.png)
   
